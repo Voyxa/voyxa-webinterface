@@ -6,7 +6,7 @@ import {
   ArrowRightIcon,
   MagnifyingGlassIcon,
 } from "@heroicons/react/20/solid";
-import Link from "next/link";
+
 import Select, { components } from "react-select";
 import WorldFlag from "react-world-flags";
 import "react-phone-input-2/lib/style.css";
@@ -37,7 +37,8 @@ const countryOptions = [
 
 const Modal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
   const [currentPage, setCurrentPage] = useState(1);
-  const [selectedRowId, setSelectedRowId] = useState<number | null>(null);
+  const [selectedRowId, setSelectedRowId] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
   const itemsPerPage = 5;
 
   const indexOfLastItem = currentPage * itemsPerPage;
@@ -59,8 +60,9 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
     }),
   };
 
-  const [selectedCountry, setSelectedCountry] = useState('US');
   const [phoneNumbers, setPhoneNumbers] = useState([]);
+  const [selectedCountry, setSelectedCountry] = useState('US');
+  const [phonePrice, setPhonePrice] = useState({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -70,21 +72,40 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
   const fetchPhoneNumbers = (countryCode: string) => {
     setLoading(true);
     fetch(`/api/getPhoneNumbers?country=${countryCode}`)
-        .then(response => response.json())
-        .then(data => {
-            setPhoneNumbers(data);
-            setLoading(false);
-        })
-        .catch(error => {
-            console.error('Error fetching phone numbers:', error);
-            setLoading(false);
-        });
+      .then(response => response.json())
+      .then(data => {
+          setPhoneNumbers(data);
+          setLoading(false);
+      })
+      .catch(error => {
+          console.error('Error fetching phone numbers:', error);
+          setLoading(false);
+      });
   };
 
-  const currentItems = phoneNumbers.length > 0 ? phoneNumbers.slice(indexOfFirstItem, indexOfLastItem) : []
+  useEffect(() => {
+    fetch(`/api/getPhonePrice?country=${selectedCountry}`)
+      .then(response => response.json())
+      .then(data => {
+          setPhonePrice(data);
+      })
+      .catch(error => {
+          console.error('Error fetching phone numbers:', error);
+      });
+  }, [selectedCountry]);
+
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(event.target.value);
+  };
+
+  const filteredPhoneNumbers = phoneNumbers.filter((number: any) =>
+    number.phoneNumber.includes(searchQuery)
+  );
+
+  const currentItems = filteredPhoneNumbers.length > 0 ? filteredPhoneNumbers.slice(indexOfFirstItem, indexOfLastItem) : []
 
   const nextPage = () => {
-    if (currentPage < Math.ceil(phoneNumbers.length / itemsPerPage)) {
+    if (currentPage < Math.ceil(filteredPhoneNumbers.length / itemsPerPage)) {
       setCurrentPage(currentPage + 1);
     }
   };
@@ -95,7 +116,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
     }
   };
 
-  const handleRowClick = (id: number) => {
+  const handleRowClick = (id: string) => {
     if (selectedRowId == id) {
       setSelectedRowId(null);
     }
@@ -130,18 +151,16 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
     </components.SingleValue>
   );
 
-  const handleCountryChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedCountry(event.target.value);
+  const handleCountryChange = (selectedOption: any) => {
+    setSelectedCountry(selectedOption.value);
   };
 
   const handleContinue = () => {
     if (selectedRowId) {
-        const purchaseUrl = `https://www.twilio.com/console/phone-numbers/search?SelectedNumber=${selectedRowId}`;
-        window.location.href = purchaseUrl;
+      const purchaseUrl = `https://www.twilio.com/console/phone-numbers/search?SelectedNumber=${selectedRowId}`;
+      window.location.href = purchaseUrl;
     }
   };
-
-  if (loading) return <div>Loading...</div>;
 
   return (
     <div
@@ -156,6 +175,8 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
           <div className="relative mb-4">
             <input
               type="text"
+              value={searchQuery}
+              onChange={handleSearchChange}
               placeholder="Search phone numbers..."
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600"
             />
@@ -166,10 +187,17 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
             options={countryOptions}
             components={{ Option: CustomOption, SingleValue }}
             styles={customStyles}
+            defaultValue={countryOptions.find(option => option.value === selectedCountry)}
             onChange={handleCountryChange}
           />
 
         </div>
+
+        {loading ? (
+          <div className="flex justify-center items-center mt-6">
+            <div className="loader">Loading...</div>
+        </div>
+        ) : (
         <div className="container mx-auto mt-1">
           <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg">
             <table className="divide-y divide-gray-300 w-full">
@@ -209,7 +237,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
                       {number.locality}
                     </td>
                     <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 text-right">
-                      {number.region}
+                      {phonePrice.priceUnit} {phonePrice.price}
                     </td>
                   </tr>
                 ))}
@@ -237,6 +265,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
             )}
           </div>
         </div>
+        )}
 
         <div className="mt-6 flex justify-end">
           <button
@@ -245,23 +274,19 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
           >
             Cancel
           </button>
-          {/* <button onClick={handleContinue} disabled={!selectedRowId}>
-            Continue
-          </button> */}
-          {/* <Link href="/calling/numberpay"> */}
-            {selectedRowId ? (
-              <button className="rounded-md border border-gray-600 text-white bg-gray-600 px-3.5 py-2.5 text-sm mb-2 hover:border-gray-500 font-semibold shadow-sm hover:bg-gray-500" onClick={handleContinue}>
-                Continue
-              </button>
-            ) : (
-              <button
-                disabled
-                className="rounded-md border border-gray-300 text-white bg-gray-300 px-3.5 py-2.5 text-sm mb-2 font-semibold shadow-sm"
-              >
-                Continue
-              </button>
-            )}
-          {/* </Link> */}
+
+          {selectedRowId ? (
+            <button className="rounded-md border border-gray-600 text-white bg-gray-600 px-3.5 py-2.5 text-sm mb-2 hover:border-gray-500 font-semibold shadow-sm hover:bg-gray-500" onClick={handleContinue}>
+              Continue
+            </button>
+          ) : (
+            <button
+              disabled
+              className="rounded-md border border-gray-300 text-white bg-gray-300 px-3.5 py-2.5 text-sm mb-2 font-semibold shadow-sm"
+            >
+              Continue
+            </button>
+          )}
         </div>
       </div>
     </div>
