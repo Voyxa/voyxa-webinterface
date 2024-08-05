@@ -14,23 +14,25 @@ import "react-phone-input-2/lib/style.css";
 interface ModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (data: {
-    firstName: string;
-    lastName: string;
-    phoneNumber: string;
-    email: string;
-  }) => void;
+  // onSave: (data: {
+  //   firstName: string;
+  //   lastName: string;
+  //   phoneNumber: string;
+  //   email: string;
+  // }) => void;
 }
 
-interface DataItem {
-  id: number;
-  number: string;
-  address: string;
-  price: string;
-}
+// interface DataItem {
+//   id: number;
+//   number: string;
+//   address: string;
+//   price: string;
+// }
 
 const countryOptions = [
   { value: "US", label: "United States", code: "us" },
+  { value: "IE", label: "Ireland", code: "ie" },
+  { value: "IT", label: "Italy", code: "it" },
   { value: "DE", label: "Germany", code: "de" },
   // Add more countries as needed
 ];
@@ -39,7 +41,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedRowId, setSelectedRowId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const itemsPerPage = 5;
+  const itemsPerPage = 3;
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
@@ -90,7 +92,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
           setPhonePrice(data);
       })
       .catch(error => {
-          console.error('Error fetching phone numbers:', error);
+          console.error('Error fetching phone number price:', error);
       });
   }, [selectedCountry]);
 
@@ -117,7 +119,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
   };
 
   const handleRowClick = (id: string) => {
-    if (selectedRowId == id) {
+    if (selectedRowId == id || id == null) {
       setSelectedRowId(null);
     }
     else {
@@ -159,6 +161,32 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
     if (selectedRowId) {
       const purchaseUrl = `https://www.twilio.com/console/phone-numbers/search?SelectedNumber=${selectedRowId}`;
       window.location.href = purchaseUrl;
+    }
+  };
+
+  const handlePurchase = async (phoneNumber: string) => {
+    const confirmPurchase = window.confirm(`Are you sure you want to purchase the phone number ${phoneNumber}?`);
+    if (confirmPurchase) {
+      try {
+        const response = await fetch('/api/purchasePhoneNumber', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ phoneNumber, country: selectedCountry }),
+        });
+    
+        if (response.ok) {
+          const data = await response.json();
+          alert(`Phone number ${data.phoneNumber} purchased successfully!`);
+        } else {
+          const errorData = await response.json();
+          alert(`Error: ${errorData.error}`);
+        }
+      } catch (error) {
+        console.error('Error purchasing phone number:', error);
+        alert('An error occurred while purchasing the phone number.');
+      }
     }
   };
 
@@ -239,31 +267,93 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
                     <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 text-right">
                       {phonePrice.priceUnit} {phonePrice.price}
                     </td>
+                    <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-500 text-right">
+                    <button
+                      className="bg-blue-500 text-white px-4 py-2 rounded-md"
+                      onClick={() => handlePurchase(number.phoneNumber)}
+                    >
+                      Purchase
+                    </button>
+                  </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-          <div className="flex justify-end mt-4">
-            {currentPage > 1 && (
-              <button
-                onClick={prevPage}
-                className="h-[40px] px-[10px] justify-between ml-2 w-[70px] inline-flex items-center rounded-md border border-gray-300 text-gray-600 text-sm mb-2 hover:border-gray-400 font-semibold shadow-sm"
-              >
-                <ArrowLeftIcon className="h-3 w-3" aria-hidden="true" />
-                Prev
-              </button>
-            )}
-            {currentPage < Math.ceil(phoneNumbers.length / itemsPerPage) && (
-              <button
-                onClick={nextPage}
-                className="h-[40px] px-[10px] justify-between ml-2 w-[70px] inline-flex items-center rounded-md border border-gray-300 text-gray-600 text-sm mb-2 hover:border-gray-400 font-semibold shadow-sm ml-3"
-              >
-                Next
-                <ArrowRightIcon className="h-3 w-3" aria-hidden="true" />
-              </button>
-            )}
+          <div className="flex justify-between items-center mt-4">
+            <button
+              onClick={prevPage}
+              disabled={currentPage === 1}
+              className={`h-[40px] px-[10px] justify-between ml-2 w-[70px] inline-flex items-center rounded-md border text-gray-600 text-sm mb-2 font-semibold shadow-sm ${
+                currentPage === 1
+                  ? 'border-gray-300 text-gray-300 cursor-not-allowed'
+                  : 'border-gray-300 hover:border-gray-400'
+              }`}
+            >
+              <ArrowLeftIcon className="h-3 w-3" aria-hidden="true" />
+              Prev
+            </button>
+
+            <div className="flex space-x-2">
+              {Array.from({ length: Math.ceil(filteredPhoneNumbers.length / itemsPerPage) }, (_, index) => {
+                const pageNumber = index + 1;
+                const isCurrentPage = currentPage === pageNumber;
+                const totalPageCount = Math.ceil(filteredPhoneNumbers.length / itemsPerPage);
+                const isFirstPage = pageNumber === 1;
+                const isSecondPage = pageNumber === 2;
+                const isSecondLastPage = pageNumber === totalPageCount - 1;
+                const isLastPage = pageNumber === totalPageCount;
+
+                if (isFirstPage || isSecondPage || isLastPage || isSecondLastPage || isCurrentPage) {
+                  return (
+                    <button
+                      key={index}
+                      onClick={() => setCurrentPage(pageNumber)}
+                      className={`h-[40px] px-[10px] w-[40px] inline-flex items-center justify-center rounded-md border ${
+                        isCurrentPage
+                          ? 'border-blue-600 text-blue-600'
+                          : 'border-gray-300 text-gray-600'
+                      } text-sm mb-2 hover:border-gray-400 font-semibold shadow-sm`}
+                    >
+                      {pageNumber}
+                    </button>
+                  );
+                }
+
+                if (pageNumber === 3 && currentPage > 4) {
+                  return (
+                    <span key={index} className="h-[40px] px-[10px] w-[40px] inline-flex items-center justify-center text-gray-600 text-sm mb-2">
+                      ...
+                    </span>
+                  );
+                }
+
+                if (pageNumber === totalPageCount - 2 && currentPage < totalPageCount - 3) {
+                  return (
+                    <span key={index} className="h-[40px] px-[10px] w-[40px] inline-flex items-center justify-center text-gray-600 text-sm mb-2">
+                      ...
+                    </span>
+                  );
+                }
+
+                return null;
+              })}
+            </div>
+
+            <button
+              onClick={nextPage}
+              disabled={currentPage === Math.ceil(filteredPhoneNumbers.length / itemsPerPage)}
+              className={`h-[40px] px-[10px] justify-between ml-2 w-[70px] inline-flex items-center rounded-md border text-gray-600 text-sm mb-2 font-semibold shadow-sm ${
+                currentPage === Math.ceil(filteredPhoneNumbers.length / itemsPerPage)
+                  ? 'border-gray-300 text-gray-300 cursor-not-allowed'
+                  : 'border-gray-300 hover:border-gray-400'
+              }`}
+            >
+              Next
+              <ArrowRightIcon className="h-3 w-3" aria-hidden="true" />
+            </button>
           </div>
+
         </div>
         )}
 
