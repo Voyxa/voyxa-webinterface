@@ -17,11 +17,18 @@ export async function GET(req) {
     try {
         const phoneNumbers =await client.availablePhoneNumbers(searchCountry).local.list({
             areaCode: 510,
-            limit: 20,
+            limit: 40,
         });
+        if (Array.isArray(phoneNumbers) == false) {
+            return Response.json([]);
+        }
+        console.log("available phone numbers success ===== ", typeof phoneNumbers);
+
         return Response.json(phoneNumbers);
 
     } catch (error) {
-        return Response.json({ error: error.message });
+        console.log("available phone numbers failure ++++++ ", error.message);
+        // return Response.json({ error: error.message });
+        return Response.json([]);
     }
 }
