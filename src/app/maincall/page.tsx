@@ -133,7 +133,7 @@ const MainCallPage: React.FC = () => {
         <div className="relative overflow-hidden h-[100vh]">
           <div className="absolute inset-0 h-[100vh]">
             <Image
-              src="/background.jpg"
+              src="/background.gif"
               alt="Description of image"
               width={100}
               height={300}

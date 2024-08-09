@@ -4,8 +4,11 @@ import Image from "next/image";
 
 const Login = () => {
   return (
-    <div className="flex min-h-full flex-1 mx-auto max-w-7xl px-4 sm:px-6 lg:px-10 py-[20px]">
-      <div className="flex flex-1 flex-col justify-center px-4 sm:px-6 lg:flex-none lg:px-20 xl:px-24 w-[50%]">
+    <div className="flex min-h-full flex-1  max-w-full px-4 sm:px-6 lg:px-10 py-[20px] "  style={{
+      backgroundImage: 'url(/background.jpg)',
+      backgroundRepeat: 'no-repeat',
+      backgroundSize: 'cover'
+    }}>  <div className="flex flex-1 flex-col justify-center px-4 sm:px-6 lg:flex-none lg:px-20 xl:px-24 w-[50%]">
         <div className="bg-white p-10 rounded-lg shadow-lg w-[100%] max-w-[500px] m-auto">
           <div className="w-full flex justify-center mb-4">
             <Link href="/">
@@ -64,7 +67,7 @@ const Login = () => {
               <label className="form-label">Password</label>
               <input type="password" className="form-input" required />
             </div>
-            <button type="submit" className="submit-btn">
+            <button type="submit" className="submit-btn gradient-bg">
               Continue with Email
             </button>
             <button type="submit" className="google-btn">
@@ -106,7 +109,7 @@ const Login = () => {
               </p>
               <button
                 type="submit"
-                className="mt-4 w-full bg-white text-[15px] text-black py-3 rounded-[5px] transition duration-300 h-[30px] flex items-center justify-center"
+                className="mt-4 w-full border border-white-300 bg-transparent text-[15px]  text-white py-3 rounded-[5px] transition duration-300 h-[30px] flex items-center justify-center hover:bg-opacity-40 hover:bg-gray-300 transition duration-300"
               >
                 Enterprise inquiry
               </button>

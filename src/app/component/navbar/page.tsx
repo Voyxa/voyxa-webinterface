@@ -8,13 +8,15 @@ const Navbar = () => {
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
             <Link href="/" className="text-xl font-bold text-primary">
-              <Image
+            <Image
                 src="/logo.png"
                 alt="Description of image"
                 width={50}
                 height={50}
-              />
+              /> 
             </Link>
+            <h2 className="lqd-text-item">&nbsp;  voyxa
+            </h2>
           </div>
           <div className="flex items-center space-x-4">
             <Link href="/home" className="text-gray-700 hover:text-primary">

@@ -3,6 +3,17 @@
 @tailwind utilities;
 
 @layer utilities {
+  
+  .lqd-text-item {
+    background: linear-gradient(135deg, #be0ee1 48.1%, #6307b3 100%);
+    -webkit-background-clip: text !important;
+    background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 3rem;
+
+  }
   .form-input {
     @apply w-full px-4 py-3 border border-gray-300 rounded-[5px] focus:outline-none focus:border-0 focus:ring-1 focus:ring-[#dc48f7] h-[40px];
   }
@@ -12,9 +23,14 @@
   }
 
   .submit-btn {
-    @apply mb-4 w-full bg-[#232323] text-white py-3 rounded-[5px] hover:bg-[#760AD8] transition duration-300 h-[40px] flex items-center justify-center;
+    @apply mb-4 w-full  text-white py-3 rounded-[5px] hover:bg-[#760AD8] transition duration-300 h-[40px] flex items-center justify-center;
   }
-
+  .gradient-bg {
+    @apply bg-gradient-to-r from-violet-500 to-fuchsia-500 transition duration-300;
+  }
+  .gradient-bg:hover {
+    @apply bg-gradient-to-r from-fuchsia-500 to-violet-500  transition duration-300;
+  }
   .link-txt {
     @apply ml-2 text-blue-500 hover:underline;
   }
@@ -36,11 +52,11 @@
   }
 
   .right-bg {
-    @apply flex items-center justify-center bg-gradient-to-b from-[#760AD8] to-[#232323] h-full border rounded-[15px];
+    @apply flex items-center justify-center bg-gradient-to-b from-[#760AD822] to-[#23232322] h-full border rounded-[15px];
   }
 
   .right-txt-group {
-    @apply text-white text-[30px] text-center p-10 flex flex-col justify-between h-full;
+    @apply text-white text-[50px] text-center p-10 flex flex-col justify-between h-full;
   }
 
   .left-page {

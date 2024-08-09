@@ -6,11 +6,13 @@ interface TableProps {
     email: string;
   }>;
   onDelete: (index: number) => void;
+  onUpdate: (index: number) => void;
 }
-import { TrashIcon } from "@heroicons/react/20/solid";
+import { TrashIcon,PencilSquareIcon } from "@heroicons/react/20/solid";
 
-const Table: React.FC<TableProps> = ({ data, onDelete }) => {
+const Table: React.FC<TableProps> = ({ data, onDelete,onUpdate }) => {
   return (
+    <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg">
     <table className="min-w-full bg-white shadow-lg">
       <thead className="bg-gray-200 text-gray-700">
         <tr className="h-[47px]">
@@ -37,16 +39,23 @@ const Table: React.FC<TableProps> = ({ data, onDelete }) => {
               {item.email}
             </td>
             <td className="py-2 px-4 border-t border-gray-300 text-center">
-              <TrashIcon
+              <button><PencilSquareIcon
+                onClick={() => onUpdate(index)}
+                className="-ml-0.5 mr-1.5 h-5 w-5 text-blue-400 hover:text-blue-500 hover:cursor-pointer"
+                aria-hidden="true"
+              /></button>
+               <button><TrashIcon
                 onClick={() => onDelete(index)}
                 className="-ml-0.5 mr-1.5 h-5 w-5 text-red-400 hover:text-red-500 hover:cursor-pointer"
                 aria-hidden="true"
-              />
+              /></button>
+              
             </td>
           </tr>
         ))}
       </tbody>
     </table>
+    </div>
   );
 };
 

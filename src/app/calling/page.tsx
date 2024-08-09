@@ -161,6 +161,7 @@ export default function Example() {
                       className="mr-3"
                     />
                   </Link>
+                  <h2 className="lqd-text-item"> voyxa </h2>
                 </div>
                 <nav className="flex flex-1 flex-col">
                   <ul role="list" className="flex flex-1 flex-col gap-y-7">
@@ -266,6 +267,8 @@ export default function Example() {
                   className="mr-3"
                 />
               </Link>
+              <h2 className="lqd-text-item"> voyxa </h2>
+
             </div>
             <nav className="flex flex-1 flex-col">
               <ul role="list" className="flex flex-1 flex-col gap-y-7">
@@ -416,6 +419,7 @@ export default function Example() {
                         height={50}
                         className="h-8 w-8 rounded-full bg-gray-50"
                       />
+                      
                       <span className="hidden lg:flex lg:items-center">
                         <span
                           className="ml-4 text-sm font-semibold leading-6 text-gray-900"

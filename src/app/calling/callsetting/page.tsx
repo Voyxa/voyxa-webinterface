@@ -129,7 +129,7 @@ const SettingsCard = () => {
               </div>
             </div>
           </div>
-          <Link href="/maincall" className="submit-btn">
+          <Link href="/maincall" className="submit-btn gradient-bg">
             <button type="submit">Start call</button>
           </Link>
         </div>

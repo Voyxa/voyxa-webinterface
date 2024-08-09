@@ -31,6 +31,11 @@ const Contact = () => {
     const newData = data.filter((_, i) => i !== index);
     setData(newData);
   };
+  
+  const handleUpdate = (index: number) => {
+    const newData = data.filter((_, i) => i !== index);
+    setData(newData);
+  };
 
   return (
     <div
@@ -111,7 +116,7 @@ const Contact = () => {
               </button>
             </div>
           </div>
-          <Table data={data} onDelete={handleDelete} />
+          <Table data={data} onDelete={handleDelete} onUpdate={handleUpdate}/>
         </div>
       )}
 
