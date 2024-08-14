@@ -25,6 +25,7 @@ import {
   BellIcon,
   Cog6ToothIcon,
   XMarkIcon,
+  SparklesIcon
 } from "@heroicons/react/24/outline";
 import {
   ChevronDownIcon,
@@ -32,6 +33,7 @@ import {
 } from "@heroicons/react/20/solid";
 
 import Setting from "../component/setting";
+import Dashboard from "../dashboard/page";
 import Contact from "../contact/page";
 import Phonecell from "../phonecell/page";
 import CallSetting from "./callsetting/page";
@@ -39,13 +41,19 @@ import CallSetting from "./callsetting/page";
 export default function Example() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const [leftBtnValue, setLeftBtnValue] = useState("Phone Numbers");
+  const [leftBtnValue, setLeftBtnValue] = useState("Dashboard");
 
   const leftBtnClick = (name: any) => {
+    console.log(name)
     setLeftBtnValue(name);
   };
 
   const navigation = [
+    {
+      name: "DashBoard",
+      icon: BuildingLibraryIcon,
+      current: leftBtnValue === "DashBoard",
+    },
     {
       name: "Call Main",
       icon: PhoneIcon,
@@ -54,7 +62,7 @@ export default function Example() {
     {
       name: "Knowledge Base",
       icon: BookOpenIcon,
-      current: leftBtnValue === "Technition",
+      current: leftBtnValue === "Knowledge Base",
     },
     {
       name: "Custom Actions",
@@ -83,7 +91,7 @@ export default function Example() {
     },
     {
       name: "Agency",
-      icon: BuildingLibraryIcon,
+      icon: SparklesIcon,
       current: leftBtnValue === "Agency",
     },
   ];
@@ -419,7 +427,7 @@ export default function Example() {
                         height={50}
                         className="h-8 w-8 rounded-full bg-gray-50"
                       />
-                      
+
                       <span className="hidden lg:flex lg:items-center">
                         <span
                           className="ml-4 text-sm font-semibold leading-6 text-gray-900"
@@ -466,6 +474,7 @@ export default function Example() {
               {leftBtnValue === "Contacts" && <Contact />}
               {leftBtnValue === "Phone Numbers" && <Phonecell />}
               {leftBtnValue === "Call Main" && <CallSetting />}
+              {leftBtnValue === "DashBoard" && <Dashboard />}
             </div>
           </main>
         </div>
