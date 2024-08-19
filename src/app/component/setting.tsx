@@ -5,15 +5,19 @@ import Video from "./settings/video";
 import Audio from "./settings/audio";
 import General from "./settings/general";
 import Caption from "./settings/caption";
+import Account from "./settings/account";
+import Billing from "./settings/billing";
 
 const Setting = () => {
-  const [tabValue, setTabValue] = useState("Audio");
+  const [tabValue, setTabValue] = useState("Account");
 
   const tabs = [
+    { name: "Account", current: tabValue === "Account" },
     { name: "Audio", current: tabValue === "Audio" },
     { name: "Video", current: tabValue === "Video" },
     { name: "General", current: tabValue === "General" },
     { name: "Captions", current: tabValue === "Captions" },
+    { name: "Billing", current: tabValue === "Billing" },
   ];
 
   const clickTabButton = (name: string) => {
@@ -76,10 +80,12 @@ const Setting = () => {
         </nav>
       </div>
       <div className="flex justify-center">
+        {tabValue === "Account" && <Account />}
         {tabValue === "Video" && <Video />}
         {tabValue === "Audio" && <Audio />}
         {tabValue === "Captions" && <Caption />}
         {tabValue === "General" && <General />}
+        {tabValue === "Billing" && <Billing />}
       </div>
     </div>
   );

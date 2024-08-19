@@ -40,8 +40,7 @@ import CallSetting from "./callsetting/page";
 
 export default function Example() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-
-  const [leftBtnValue, setLeftBtnValue] = useState("Dashboard");
+  const [leftBtnValue, setLeftBtnValue] = useState("DashBoard");
 
   const leftBtnClick = (name: any) => {
     console.log(name)
