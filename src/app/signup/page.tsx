@@ -70,16 +70,28 @@ const Login = () => {
             <button type="submit" className="submit-btn gradient-bg">
               Continue with Email
             </button>
-            <button type="submit" className="google-btn">
-              <Image
-                src="/google-icon.svg"
-                alt="Description of image"
-                width={20}
-                height={20}
-                className="mr-4"
-              />
-              Continue with Google
-            </button>
+            <div className="grid grid-cols-2 gap-4">
+              <button type="submit" className="google-btn">
+                <Image
+                  src="/google-icon.svg"
+                  alt="Description of image"
+                  width={20}
+                  height={20}
+                  className="mr-4"
+                />
+                Google
+              </button>
+              <button type="submit" className="google-btn">
+                <Image
+                  src="/icons8-microsoft.svg"
+                  alt="Description of image"
+                  width={20}
+                  height={20}
+                  className="mr-4"
+                />
+                Microsoft
+              </button>
+            </div>
           </form>
           <p className="mt-6 text-center text-gray-600">
             Already have an account?

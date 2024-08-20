@@ -98,7 +98,8 @@ const Billing = () => {
             <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg">
 
                 <table className="bg-white rounded-lg shadow p-6 min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">           <tr>
+                    <thead className="bg-gray-50">           
+                        <tr>
                         <th className="border p-4 text-left">Tiered Services, Benefits, and Features</th>
                         {plans.map((plan) => (
                             <th key={plan.name} className="border p-4">{plan.name}</th>

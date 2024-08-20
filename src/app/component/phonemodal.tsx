@@ -22,12 +22,18 @@ interface ModalProps {
   }) => void;
 }
 
-// interface DataItem {
-//   id: number;
-//   number: string;
-//   address: string;
-//   price: string;
-// }
+interface DataItem {
+  id: number;
+  number: string;
+  address: string;
+  phoneNumber: string;
+  locality :string;
+}
+interface phonePrice{
+  priceUnit :string;
+  price: string;
+
+}
 
 const countryOptions = [
   { value: "US", label: "United States", code: "us" },
@@ -64,7 +70,10 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
 
   const [phoneNumbers, setPhoneNumbers] = useState([]);
   const [selectedCountry, setSelectedCountry] = useState('US');
-  const [phonePrice, setPhonePrice] = useState({});
+  const [phonePrice, setPhonePrice] = useState({
+    priceUnit:"$",
+    price:"0"
+  });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -405,7 +414,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose }) => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200 bg-white">
-                    {currentItems.map((number, index) => (
+                    {currentItems.map((number:DataItem, index) => (
                       <tr
                         key={index}
                         className={`cursor-pointer ${selectedRowId === number.phoneNumber ? "bg-gray-100" : ""

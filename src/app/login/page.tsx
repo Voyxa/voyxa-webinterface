@@ -4,7 +4,7 @@ import Image from "next/image";
 
 const Login = () => {
   return (
-    <div className="flex min-h-full flex-1  max-w-full px-4 sm:px-6 lg:px-10 py-[20px] "  style={{
+    <div className="flex min-h-full flex-1  max-w-full px-4 sm:px-6 lg:px-10 py-[20px] " style={{
       backgroundImage: 'url(/background.jpg)',
       backgroundRepeat: 'no-repeat',
       backgroundSize: 'cover'
@@ -62,16 +62,30 @@ const Login = () => {
             <button type="submit" className="submit-btn gradient-bg">
               Sign in
             </button>
-            <button type="submit" className="google-btn">
-              <Image
-                src="/google-icon.svg"
-                alt="Description of image"
-                width={20}
-                height={20}
-                className="mr-4"
-              />
-              Continue with Google
-            </button>
+
+            <div className="grid grid-cols-2 gap-4">
+              <button type="submit" className="google-btn">
+                <Image
+                  src="/google-icon.svg"
+                  alt="Description of image"
+                  width={20}
+                  height={20}
+                  className="mr-4"
+                />
+                Google
+              </button>
+              <button type="submit" className="google-btn">
+                <Image
+                  src="/icons8-microsoft.svg"
+                  alt="Description of image"
+                  width={20}
+                  height={20}
+                  className="mr-4"
+                />
+                Microsoft
+              </button>
+            </div>
+
           </form>
           <p className="mt-6 text-center text-gray-600">
             Don&apos;t have an account?

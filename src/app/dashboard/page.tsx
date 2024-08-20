@@ -3,9 +3,21 @@
 import { useState } from 'react';
 import { Line } from 'react-chartjs-2';
 import 'chart.js/auto';
-
+interface tableDataType{
+    date: string;
+    type: string;
+    from: string;
+    to: string;
+    name: string;
+    duration: number;
+    leadStatus: string;
+    status: string;
+}
+interface ChartProps {
+    tableData: tableDataType[];
+  }
 const Dashboard = () => {
-    const [tableData, setTableData] = useState([
+    const [tableData, setTableData] = useState<tableDataType[]>([
         {
             date: '8/2/2024 - 10:36 PM',
             type: 'Call',
@@ -100,7 +112,7 @@ const Dashboard = () => {
 
                 <div className="bg-blue-100  shadow-md p-6 rounded-lg flex-1 flex flex-col">
                     <h3 className="font-semibold text-lg mb-2">Demo</h3>
-                    <p className="mb-4">Just want to test voyxa's agent?<br /><br /><br /><br /></p>
+                    <p className="mb-4">Just want to test voyxa&apos;s agent?<br /><br /><br /><br /></p>
                     <div className="flex justify-between items-center "><h1 className="text-3xl font-bold"> </h1><div><button className="bg-blue-500 text-white px-4 py-2 rounded-lg">Call Now</button></div></div>
                 </div>
             </div>
@@ -157,7 +169,7 @@ const Dashboard = () => {
 };
 
 
-const Chart = ({ tableData }) => {
+const Chart: React.FC<ChartProps>=({ tableData }) => {
     const labels = tableData.map(row => row.date);
     const dataPoints = tableData.map(row => row.duration);
 
