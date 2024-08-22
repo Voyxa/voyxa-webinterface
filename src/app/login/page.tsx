@@ -1,10 +1,48 @@
 "use client";
 import Link from "next/link";
 import Image from "next/image";
+import { useState } from "react";
 
 const Login = () => {
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
+  const [error, setError] = useState<string>("");
+
+  // Add type for event parameter
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setError("");
+
+    // Call to your login API
+    const response = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email, password }),
+    });
+
+    if (response.ok) {
+      // Handle successful login (e.g., redirect to dashboard)
+      window.location.href = '/dashboard';
+    } else {
+      const data = await response.json();
+      setError(data.message || 'Login failed. Please check your credentials.');
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    // Redirect to Google login or initiate login process
+    window.location.href = '/api/auth/social-login?provider=google';
+  };
+
+  const handleMicrosoftLogin = async () => {
+    // Redirect to Microsoft login or initiate login process
+    window.location.href = '/api/auth/social-login?provider=microsoft';
+  };
+
   return (
-    <div className="flex min-h-full flex-1  max-w-full px-4 sm:px-6 lg:px-10 py-[20px] " style={{
+    <div className="flex min-h-full flex-1 max-w-full px-4 sm:px-6 lg:px-10 py-[20px]" style={{
       backgroundImage: 'url(/background.jpg)',
       backgroundRepeat: 'no-repeat',
       backgroundSize: 'cover'
@@ -27,14 +65,28 @@ const Login = () => {
             Welcome back! Enter your credentials to access your account
           </label>
 
-          <form>
+          {error && <div className="text-red-500">{error}</div>}
+
+          <form onSubmit={handleSubmit}>
             <div className="mb-2">
               <label className="form-label">Email</label>
-              <input type="email" className="form-input" required />
+              <input
+                type="email"
+                className="form-input"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
             </div>
             <div className="mb-2">
               <label className="form-label">Password</label>
-              <input type="password" className="form-input" required />
+              <input
+                type="password"
+                className="form-input"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
             </div>
             <div className="mb-6 flex items-center justify-between">
               <div className="flex items-center">
@@ -63,21 +115,21 @@ const Login = () => {
               Sign in
             </button>
 
-            <div className="grid grid-cols-2 gap-4">
-              <button type="submit" className="google-btn">
+            <div className="grid grid-cols-2 gap-4 mt-4">
+              <button type="button" onClick={handleGoogleLogin} className="google-btn">
                 <Image
                   src="/google-icon.svg"
-                  alt="Description of image"
+                  alt="Google icon"
                   width={20}
                   height={20}
                   className="mr-4"
                 />
                 Google
               </button>
-              <button type="submit" className="google-btn">
+              <button type="button" onClick={handleMicrosoftLogin} className="google-btn">
                 <Image
                   src="/icons8-microsoft.svg"
-                  alt="Description of image"
+                  alt="Microsoft icon"
                   width={20}
                   height={20}
                   className="mr-4"
@@ -103,19 +155,19 @@ const Login = () => {
               <h1 className="text-[20px]">
                 Our project aims to revolutionize Help Desk customer support by
                 developing advanced proprietary AI for call answering that
-                leverages VoIP numbers and cutting0dedge natural language
+                leverages VoIP numbers and cutting-edge natural language
                 processing (NLP) technologies, in particular GPT models.
               </h1>
             </div>
             <div>
               <p className="text-white-600 text-[12px]">
-                By combining advanced NLP techniques, GPT models and speech
-                processing libraries, we expect a significant improvenment in
-                customer service efficiently and satisfaction.
+                By combining advanced NLP techniques, GPT models, and speech
+                processing libraries, we expect a significant improvement in
+                customer service efficiency and satisfaction.
               </p>
               <button
                 type="submit"
-                className="mt-4 w-full border border-white-300 bg-transparent text-[15px]  text-white py-3 rounded-[5px] transition duration-300 h-[30px] flex items-center justify-center hover:bg-opacity-40 hover:bg-gray-300 transition duration-300"
+                className="mt-4 w-full border border-white-300 bg-transparent text-[15px] text-white py-3 rounded-[5px] transition duration-300 h-[30px] flex items-center justify-center hover:bg-opacity-40 hover:bg-gray-300 transition duration-300"
               >
                 Enterprise inquiry
               </button>
