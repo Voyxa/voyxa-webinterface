@@ -2,6 +2,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
+import { signIn } from "next-auth/react"; // Import the signIn function
 
 const Signup = () => {
   const [email, setEmail] = useState<string>("");
@@ -13,12 +14,10 @@ const Signup = () => {
   const [password, setPassword] = useState<string>("");
   const [error, setError] = useState<string>("");
 
-  // Handle form submission
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
 
-    // Prepare the data for signup
     const signupData = {
       email,
       firstName,
@@ -29,7 +28,6 @@ const Signup = () => {
       password,
     };
 
-    // Call your signup API
     const response = await fetch('/api/auth/signup', {
       method: 'POST',
       headers: {
@@ -39,8 +37,7 @@ const Signup = () => {
     });
 
     if (response.ok) {
-      // Handle successful signup (e.g., redirect to login or dashboard)
-      window.location.href = '/login'; // Redirect to login page
+      window.location.href = '/login'; // Redirect to login page after successful signup
     } else {
       const data = await response.json();
       setError(data.message || 'Signup failed. Please try again.');
@@ -48,13 +45,11 @@ const Signup = () => {
   };
 
   const handleGoogleSignup = async () => {
-    // Redirect to Google signup or initiate signup process
-    window.location.href = '/api/auth/social-signup?provider=google';
+    signIn('google', { callbackUrl: '/dashboard' }); // Use signIn for Google signup
   };
 
   const handleMicrosoftSignup = async () => {
-    // Redirect to Microsoft signup or initiate signup process
-    window.location.href = '/api/auth/social-signup?provider=microsoft';
+    signIn('microsoft', { callbackUrl: '/dashboard' }); // Use signIn for Microsoft signup
   };
 
   return (

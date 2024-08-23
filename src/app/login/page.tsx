@@ -2,13 +2,13 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
+import { signIn } from "next-auth/react"; // Import the signIn function
 
 const Login = () => {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [error, setError] = useState<string>("");
 
-  // Add type for event parameter
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
@@ -24,7 +24,7 @@ const Login = () => {
 
     if (response.ok) {
       // Handle successful login (e.g., redirect to dashboard)
-      window.location.href = '/dashboard';
+      window.location.href = '/calling';
     } else {
       const data = await response.json();
       setError(data.message || 'Login failed. Please check your credentials.');
@@ -32,13 +32,13 @@ const Login = () => {
   };
 
   const handleGoogleLogin = async () => {
-    // Redirect to Google login or initiate login process
-    window.location.href = '/api/auth/social-login?provider=google';
+    // Use NextAuth's signIn function for Google login
+    signIn('google', { callbackUrl: '/calling' });
   };
 
   const handleMicrosoftLogin = async () => {
-    // Redirect to Microsoft login or initiate login process
-    window.location.href = '/api/auth/social-login?provider=microsoft';
+    // Use NextAuth's signIn function for Microsoft login
+    signIn('microsoft', { callbackUrl: '/calling' });
   };
 
   return (
