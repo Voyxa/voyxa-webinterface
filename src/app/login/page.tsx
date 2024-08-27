@@ -38,7 +38,7 @@ const Login = () => {
 
   const handleMicrosoftLogin = async () => {
     // Use NextAuth's signIn function for Microsoft login
-    signIn('microsoft', { callbackUrl: '/calling' });
+    signIn('azure-ad', { callbackUrl: '/calling' });
   };
 
   return (

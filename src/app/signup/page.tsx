@@ -49,7 +49,7 @@ const Signup = () => {
   };
 
   const handleMicrosoftSignup = async () => {
-    signIn('microsoft', { callbackUrl: '/calling' }); // Use signIn for Microsoft signup
+    signIn('azure-ad', { callbackUrl: '/calling' }); // Use signIn for Microsoft signup
   };
 
   return (
