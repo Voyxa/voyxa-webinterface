@@ -37,6 +37,7 @@ import Dashboard from "../dashboard/page";
 import Contact from "../contact/page";
 import Phonecell from "../phonecell/page";
 import CallSetting from "./callsetting/page";
+import CreateVoyxa from "../voyxa/page";
 
 export default function Example() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -474,6 +475,8 @@ export default function Example() {
               {leftBtnValue === "Phone Numbers" && <Phonecell />}
               {leftBtnValue === "Call Main" && <CallSetting />}
               {leftBtnValue === "DashBoard" && <Dashboard />}
+              {leftBtnValue === "Integrations" && <CreateVoyxa />}
+              
             </div>
           </main>
         </div>
