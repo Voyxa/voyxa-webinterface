@@ -45,11 +45,11 @@ const Signup = () => {
   };
 
   const handleGoogleSignup = async () => {
-    signIn('google', { callbackUrl: '/dashboard' }); // Use signIn for Google signup
+    signIn('google', { callbackUrl: '/calling' }); // Use signIn for Google signup
   };
 
   const handleMicrosoftSignup = async () => {
-    signIn('microsoft', { callbackUrl: '/dashboard' }); // Use signIn for Microsoft signup
+    signIn('microsoft', { callbackUrl: '/calling' }); // Use signIn for Microsoft signup
   };
 
   return (
