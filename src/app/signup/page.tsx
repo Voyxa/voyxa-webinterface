@@ -128,7 +128,8 @@ const Signup = () => {
                 className="form-input"
                 value={company}
                 onChange={(e) => setCompany(e.target.value)}
-                placeholder="Optional"
+                required
+
               />
             </div>
             <div className="mb-2">
@@ -138,7 +139,7 @@ const Signup = () => {
                 className="form-input"
                 value={industry}
                 onChange={(e) => setIndustry(e.target.value)}
-                placeholder="Optional"
+                required
               />
             </div>
             <div className="mb-6">
