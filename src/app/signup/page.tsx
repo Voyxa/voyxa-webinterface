@@ -28,19 +28,58 @@ const Signup = () => {
       password,
     };
 
-    const response = await fetch('/api/auth/signup', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(signupData),
-    });
+    const mutation = `
+      mutation RegisterUser($userDetails: UserInputDto!) {
+        registerUser(userDetails: $userDetails) {
+          first_name
+          last_name
+          user_phone_number
+          email_id
+          company
+          industry
+          access_token
+          refresh_token
+        }
+      }
+    `;
 
-    if (response.ok) {
-      window.location.href = '/login'; // Redirect to login page after successful signup
-    } else {
-      const data = await response.json();
-      setError(data.message || 'Signup failed. Please try again.');
+    const variables = { userDetails: signupData };
+    console.log(variables)
+    try {
+      const response = await fetch('http://13.127.87.100:3000/graphql', {
+        method: 'POST', 
+        mode: 'no-cors', // This will bypass CORS, but you won't have access to the response data
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          query: mutation,
+          userDetails: signupData,
+        }),
+      });
+
+      const result = await response.json();
+      if (result.errors) {
+        setError(result.errors[0].message || 'Signup failed. Please try again.');
+      } else {
+        const userData = result.data.registerUser;
+
+        // Automatically sign in the user with NextAuth
+        const signInResponse = await signIn('credentials', {
+          redirect: false,
+          email: userData.email_id,
+          password, // You may need to adjust this depending on your authentication logic
+        });
+
+        if (signInResponse?.error) {
+          setError(signInResponse.error);
+        } else {
+          window.location.href = '/calling'; // Redirect to the dashboard after successful signup and sign-in
+        }
+      }
+    } catch (error) {
+      console.error('Signup Error:', error);
+      setError('Signup failed. Please try again.');
     }
   };
 
@@ -129,7 +168,6 @@ const Signup = () => {
                 value={company}
                 onChange={(e) => setCompany(e.target.value)}
                 required
-
               />
             </div>
             <div className="mb-2">
