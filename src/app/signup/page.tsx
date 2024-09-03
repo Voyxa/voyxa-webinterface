@@ -46,7 +46,7 @@ const Signup = () => {
     const variables = { userDetails: signupData };
     console.log(variables)
     try {
-      const response = await fetch('http://13.127.87.100:3000/graphql', {
+      const response = await fetch('http://localhost:4000/graphql', {
         method: 'POST', 
         mode: 'no-cors', // This will bypass CORS, but you won't have access to the response data
         headers: {
