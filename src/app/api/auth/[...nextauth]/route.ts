@@ -6,11 +6,9 @@ import { GraphQLClient } from 'graphql-request';
 const client = new GraphQLClient(process.env.GRAPHQL_API_ENDPOINT as string);
 
 const socialLoginMutation = `
-  mutation SocialLogin($provider: String!, $code: String!) {
-    socialLogin(provider: $provider, code: $code) {
+  mutation SocialLogin($provider: String!, $email: String!, $name: String!) {
+    socialLogin(provider: $provider, email: $email,name: $name) {
       first_name
-      last_name
-      user_phone_number
       email_id
       company
       industry
@@ -39,20 +37,19 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    async signIn({ account, profile, tokens }) {
-      if (account?.provider && tokens?.code) {
+    async signIn({ account, profile }) {
+      
         try {
           await client.request(socialLoginMutation, {
             provider: account.provider,
-            code: tokens.code, // OAuth 2.0 authorization code
+            email: profile.email,
+            name: profile.name, // OAuth 2.0 authorization code
           });
           return true;
         } catch (error) {
           console.error('Error during social login:', error);
           return false;
         }
-      }
-      return true;
     },
     async jwt({ token, account, profile }) {
       if (account) {
