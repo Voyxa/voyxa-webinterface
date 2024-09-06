@@ -5,7 +5,6 @@ const StartVoyxa = () => {
     <div className="flex  ">
       {/* Main Content */}
       <div className="flex-1 p-8 ">
-        <h2 className="text-3xl font-bold mb-6">Create a Voyxa</h2>
         <p className="mb-8">Create your Voyxa and choose its role according to your use case.</p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
