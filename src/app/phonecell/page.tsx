@@ -58,10 +58,11 @@ const Phonecell = () => {
   };
 
   return (
+
     <div
       className={classNames(
-        phoneData.length != 0 ? " items-start pt-[110px]" : "items-center",
-        "container mx-auto h-full flex justify-center"
+        phoneData.length != 0 ? " items-start " : "items-center",
+        "w-full  h-full  "
       )}
     >
       {phoneData.length == 0 ? (
@@ -104,7 +105,7 @@ const Phonecell = () => {
         </div>
       </div>
       ) : (
-          <div className="w-[90%]">
+          <div className="w-full">
           <div className="flex justify-between items-center mb-8">
             <h1 className="text-3xl font-bold">Phone Numbers</h1>
             <div>

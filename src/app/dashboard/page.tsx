@@ -90,7 +90,7 @@ const Dashboard = () => {
     //     });
     // };
     return (
-        <div className="max-h-screen pt-[50px] ">
+        <div className="max-h-screen ">
             <div className="flex grid grid-cols-4 grid-flow-col gap-4 p-6">
                 {/* Each card is now a flex container */}
                 <div className="bg-white-100 shadow-md p-6 rounded-lg flex-1 col-span-2 flex flex-col">

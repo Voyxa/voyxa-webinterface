@@ -469,8 +469,8 @@ export default function Example() {
             </div>
           </div>
 
-          <main className="h-full bg-[#f9fafb]">
-            <div className="flex justify-center h-full pt-[64px] items-center">
+          <main className=" bg-[#f9fafb]">
+            <div className="flex justify-center h-full p-5 pt-[85px] items-center">
               {leftBtnValue === "Settings" && <Setting />}
               {leftBtnValue === "Contacts" && <Contact />}
               {leftBtnValue === "Phone Numbers" && <Phonecell />}
