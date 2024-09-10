@@ -1,0 +1,149 @@
+diff a/src/app/api/auth/[...nextauth]/route.ts b/src/app/api/auth/[...nextauth]/route.ts	(rejected hunks)
+@@ -1,99 +1,73 @@
+-import NextAuth, { NextAuthOptions, User } from "next-auth";
++import NextAuth, { NextAuthOptions } from "next-auth";
+ import GoogleProvider from "next-auth/providers/google";
+ import MicrosoftProvider from "next-auth/providers/azure-ad";
+-import { gql, GraphQLClient } from 'graphql-request';
++import { GraphQLClient } from 'graphql-request';
+ 
+-interface UserInputDto {
+-  first_name: string;
+-  last_name: string;
+-  user_phone_number: string;
+-  email_id: string;
+-  company?: string;
+-  industry?: string;
+-}
++const client = new GraphQLClient(process.env.GRAPHQL_API_ENDPOINT as string);
+ 
+-interface UserOutputDto {
+-  first_name: string;
+-  last_name: string;
+-  user_phone_number: string;
+-  email_id: string;
+-  company?: string;
+-  industry?: string;
+-  access_token: string;
+-  refresh_token: string;
+-}
+-
+-// Define the GraphQL client
+-const graphQLClient = new GraphQLClient(process.env.GRAPHQL_API_ENDPOINT as string, {
+-  headers: {
+-    authorization: `Bearer ${process.env.GRAPHQL_API_TOKEN}`, // Use appropriate token if necessary
+-  },
+-});
++const socialLoginMutation = `
++  mutation SocialLogin($provider: String!, $code: String!) {
++    socialLogin(provider: $provider, code: $code) {
++      first_name
++      last_name
++      user_phone_number
++      email_id
++      company
++      industry
++      access_token
++      refresh_token
++    }
++  }
++`;
+ 
+ export const authOptions: NextAuthOptions = {
+   providers: [
+     GoogleProvider({
+       clientId: process.env.GOOGLE_CLIENT_ID as string,
+       clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
++      authorization: {
++        params: {
++          scope: "openid email profile",
++          response_type: "code",  // Ensures the response contains the authorization code
++        },
++      },
+     }),
+     MicrosoftProvider({
+       clientId: process.env.MICROSOFT_CLIENT_ID as string,
+       clientSecret: process.env.MICROSOFT_CLIENT_SECRET as string,
+-      tenantId: process.env.MICROSOFT_TENANT_ID as string, // Optional
++      tenantId: process.env.MICROSOFT_TENANT_ID as string,
+     }),
+   ],
+   callbacks: {
+-    async signIn({ user, account, profile }): Promise<boolean> {
+-      // Extract user data to match UserInputDto
+-      console.log(user)
+-      const userInputDto: UserInputDto = {
+-        first_name: user.name?.split(" ")[0] || "",
+-        last_name: user.name?.split(" ").slice(1).join(" ") || "",
+-        user_phone_number: "", // Phone number is often not provided by Google/Microsoft OAuth
+-        email_id: user.email!,
+-        company: "", // Add company if available
+-        industry: "", // Add industry if available
+-      };
+-
+-      // GraphQL mutation for registering the user
+-      const mutation = gql`
+-        mutation RegisterUser($userDetails: UserInputDto!) {
+-          registerUser(userDetails: $userDetails) {
+-            first_name
+-            last_name
+-            user_phone_number
+-            email_id
+-            company
+-            industry
+-            access_token
+-            refresh_token
+-          }
++    async signIn({ account, profile, tokens }) {
++      if (account?.provider && tokens?.code) {
++        try {
++          await client.request(socialLoginMutation, {
++            provider: account.provider,
++            code: tokens.code, // OAuth 2.0 authorization code
++          });
++          return true;
++        } catch (error) {
++          console.error('Error during social login:', error);
++          return false;
+         }
+-      `;
+-
+-      try {
+-        // Call the GraphQL endpoint to register the user
+-        const response = await graphQLClient.request<{ registerUser: UserOutputDto }>(mutation, {
+-          userDetails: userInputDto,
+-        });
+-
+-        console.log('User registered:', response.registerUser);
+-
+-        // Optionally store tokens in the session or a secure cookie
+-        return true; // Continue the sign-in process
+-      } catch (error) {
+-        console.error('Error registering user:', error);
+-        return false; // Reject the sign-in process
+       }
++      return true;
+     },
+-    async session({ session, token, user }) {
+-      // Customize the session object if necessary, e.g., attach the access token
+-      return session;
+-    },
+-    async jwt({ token, user, account, profile }) {
+-      // Handle token processing if necessary, e.g., attach access and refresh tokens
++    async jwt({ token, account, profile }) {
++      if (account) {
++        token.accessToken = account.access_token;
++        token.idToken = account.id_token;
++        token.code = account.code;  // Store the code for later use
++      }
+       return token;
+     },
++    async session({ session, token }) {
++      session.accessToken = token.accessToken;
++      session.idToken = token.idToken;
++      session.code = token.code;  // Attach the code to the session
++      return session;
++    },
+   },
+ };
+ 
