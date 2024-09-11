@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useState } from "react";
 import { signIn } from "next-auth/react"; // Import the signIn function
 import { Button } from 'antd';
+
 const AddData = () => {
   const [email, setEmail] = useState<string>("");
   const [firstName, setFirstName] = useState<string>("");
@@ -54,13 +55,13 @@ const AddData = () => {
         },
         body: JSON.stringify({
           query: mutation,
-          userDetails: signupData,
+          variables,
         }),
       });
 
       const result = await response.json();
       if (result.errors) {
-        setError(result.errors[0].message || 'Signup failed. Please try again.');
+        setError(result.errors[0].message || 'Add user data failed. Please try again.');
       } else {
         const userData = result.data.registerUser;
         // Automatically sign in the user with NextAuth
@@ -73,12 +74,12 @@ const AddData = () => {
         if (signInResponse?.error) {
           setError(signInResponse.error);
         } else {
-          window.location.href = '/calling'; // Redirect to the dashboard after successful signup and sign-in
+          window.location.href = '/calling'; // Redirect to the /calling page after successful signup and sign-in
         }
       }
     } catch (error) {
       console.error('Signup Error:', error);
-      setError('Signup failed. Please try again.');
+      setError('Add user data failed. Please try again.');
     }
   };
 
@@ -108,7 +109,7 @@ const AddData = () => {
                 className="mr-3"
               />
             </Link>
-            <h2 className="title-lg m-auto text-primary " >Add additional data</h2>
+            <h2 className="title-lg m-auto text-primary">Add additional data</h2>
           </div>
           {error && <div className="text-red-500">{error}</div>}
           <form onSubmit={handleSubmit}>
@@ -165,22 +166,16 @@ const AddData = () => {
               />
             </div>
             <div className="grid grid-cols-2 gap-4 mt-4">
-
-              <Button type="primary" className="p-5">
+              <Button type="primary" htmlType="submit" className="p-5">
                 Save
               </Button>
-              <Button type="default" className="p-5">
+              <Button type="default" href="/signup" className="p-5">
                 Cancel
               </Button>
-
             </div>
-
-
           </form>
-
         </div>
       </div>
-
     </div>
   );
 };

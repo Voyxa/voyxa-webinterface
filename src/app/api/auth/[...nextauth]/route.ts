@@ -78,7 +78,13 @@ export const authOptions: NextAuthOptions = {
     MicrosoftProvider({
       clientId: process.env.MICROSOFT_CLIENT_ID as string,
       clientSecret: process.env.MICROSOFT_CLIENT_SECRET as string,
-      tenantId: process.env.MICROSOFT_TENANT_ID as string,
+      tenantId: process.env.MICROSOFT_TENANT_ID as string, // This should match the tenant where the application is registered
+      authorization: {
+        params: {
+          scope: "openid email profile offline_access",
+          response_type: "code",
+        },
+      },
     }),
   ],
   callbacks: {
@@ -90,7 +96,7 @@ export const authOptions: NextAuthOptions = {
           provider: account.provider,
           code: account.access_token,  // Use access_token instead of code
         });
-
+        console.log(response)
         account.firstName = response.socialLogin.first_name;
         account.lastName = response.socialLogin.last_name;
         account.company = response.socialLogin.company;
