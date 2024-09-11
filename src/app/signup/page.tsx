@@ -44,7 +44,6 @@ const Signup = () => {
     `;
 
     const variables = { userDetails: signupData };
-    console.log(variables)
     try {
       const response = await fetch('http://13.127.87.100:3000/graphql', {
         method: 'POST',
@@ -64,7 +63,6 @@ const Signup = () => {
         setError(result.errors[0].message || 'Signup failed. Please try again.');
       } else {
         const userData = result.data.registerUser;
-        console.log('-----------------------------------------\n', userData)
         // Automatically sign in the user with NextAuth
         const signInResponse = await signIn('credentials', {
           redirect: false,

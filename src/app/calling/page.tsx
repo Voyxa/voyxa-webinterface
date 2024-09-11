@@ -45,7 +45,6 @@ export default function Example() {
   const [leftBtnValue, setLeftBtnValue] = useState("DashBoard");
   const { data: session } = useSession();
   const leftBtnClick = (name: any) => {
-    console.log(name)
     setLeftBtnValue(name);
   };
 

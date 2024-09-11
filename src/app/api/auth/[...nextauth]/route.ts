@@ -1,30 +1,67 @@
-import NextAuth, { NextAuthOptions } from "next-auth";
+import NextAuth, { NextAuthOptions, Account, Profile, Session } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import MicrosoftProvider from "next-auth/providers/azure-ad";
 import { GraphQLClient } from 'graphql-request';
-import fetch from 'node-fetch';
+import { JWT } from "next-auth/jwt";
+
+// Define a type for the additional data you expect from the GraphQL mutation
+interface SocialLoginResponse {
+  socialLogin: {
+    first_name: string;
+    last_name: string;
+    email_id: string;
+    company: string;
+    industry: string;
+  };
+}
+
+// Extend the JWT type to include custom properties
+interface CustomJWT extends JWT {
+  accessToken?: string;
+  idToken?: string;
+  account?: {
+    provider: string;
+    type: string;
+    idToken?: string;
+    accessToken?: string;
+    firstName?: string;
+    lastName?: string;
+    company?: string;
+    industry?: string;
+  };
+  profile?: {
+    email?: string;
+    name?: string;
+  };
+}
+
+// Extend the Session type to include custom properties
+interface CustomSession extends Session {
+  accessToken?: string;
+  idToken?: string;
+  account?: CustomJWT['account'];
+  profile?: CustomJWT['profile'];
+  firstName?: string;
+  lastName?: string;
+  company?: string;
+  industry?: string;
+}
 
 const client = new GraphQLClient(process.env.GRAPHQL_API_ENDPOINT as string);
 
-// Define the GraphQL mutation for social login
-const socialLoginMutation = /* GraphQL */ `
+const socialLoginMutation = `
   mutation SocialLogin($provider: String!, $code: String!) {
     socialLogin(provider: $provider, code: $code) {
       first_name
       last_name
-      user_phone_number
       email_id
       company
       industry
-      access_token
-      refresh_token
     }
   }
 `;
 
-// Define the NextAuth configuration
 export const authOptions: NextAuthOptions = {
-  secret: process.env.NEXT_PUBLIC_SECRET,
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID as string,
@@ -32,7 +69,6 @@ export const authOptions: NextAuthOptions = {
       authorization: {
         params: {
           scope: "openid email profile",
-          response_type: "code",
         },
       },
       httpOptions: {
@@ -46,72 +82,67 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    async jwt({ token, account }) {
-      if (account?.access_token) {
-        token.accessToken = account.access_token;
-      }
-      return token;
-    },
-    async signIn({ account, tokens }) {
-      console.log('SignIn callback:', account, tokens);
-      if (account?.provider && tokens?.accessToken) {
-        try {
-          await client.request(socialLoginMutation, {
-            provider: account.provider,
-            code: tokens.accessToken, // Use the access token here
-          });
-          return true;
-        } catch (error) {
-          console.error('Error during social login:', error);
-          return false;
-        }
-      }
-      return true;
-    },
-    async session({ session, token }) {
-      session.accessToken = token.accessToken;
-      return session;
-    },
-  },
-  async authorize({ req, res }) {
-    // Handle the OAuth callback directly within NextAuth
-    const { code } = req.query;
-    if (code) {
+    async signIn({ account, profile }): Promise<boolean> {
+      if (!account ) return false;
+
       try {
-        const response = await fetch('https://oauth2.googleapis.com/token', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-          },
-          body: new URLSearchParams({
-            code: code as string,
-            client_id: process.env.GOOGLE_CLIENT_ID!,
-            client_secret: process.env.GOOGLE_CLIENT_SECRET!,
-            redirect_uri: 'http://localhost:3000/api/auth/callback', // Update as needed
-            grant_type: 'authorization_code',
-          }),
+        const response: SocialLoginResponse = await client.request(socialLoginMutation, {
+          provider: account.provider,
+          code: account.access_token,  // Use access_token instead of code
         });
 
-        const data = await response.json();
+        account.firstName = response.socialLogin.first_name;
+        account.lastName = response.socialLogin.last_name;
+        account.company = response.socialLogin.company;
+        account.industry = response.socialLogin.industry;
 
-        if (data.error) {
-          throw new Error(data.error);
-        }
-
-        // Handle the tokens as needed
-        const { access_token, refresh_token } = data;
-
-        // Optionally, you can store these tokens or pass them to a function
-        // Example: await client.request(socialLoginMutation, { provider: 'google', code: access_token });
-
-        res.status(200).json({ access_token, refresh_token });
+        return true;
       } catch (error) {
-        console.error('Error handling OAuth callback:', error);
-        res.status(500).json({ error: 'Internal Server Error' });
+        console.error('Error during social login:', error);
+        return false;
       }
-    } else {
-      res.status(400).json({ error: 'Authorization code not provided.' });
-    }
+    },
+    async jwt({ token, account, profile }: { token: CustomJWT, account?: Account | null, profile?: Profile | null }): Promise<CustomJWT> {
+      if (account) {
+        token.accessToken = account.access_token;
+        token.idToken = account.id_token;
+
+        token.account = {
+          provider: account.provider,
+          type: account.type,
+          idToken: account.id_token,
+          accessToken: account.access_token,
+          firstName: account.firstName as string,
+          lastName: account.lastName as string,
+          company: account.company as string,
+          industry: account.industry as string,
+        };
+      }
+
+      if (profile) {
+        token.profile = {
+          email: profile.email,
+          name: profile.name,
+        };
+      }
+
+      return token;
+    },
+    async session({ session, token }: { session: CustomSession, token: CustomJWT }): Promise<CustomSession> {
+      session.accessToken = token.accessToken;
+      session.idToken = token.idToken;
+      session.account = token.account;
+      session.profile = token.profile;
+
+      if (token.account) {
+        session.firstName = token.account.firstName;
+        session.lastName = token.account.lastName;
+        session.company = token.account.company;
+        session.industry = token.account.industry;
+      }
+
+      return session;
+    },
   },
 };
 

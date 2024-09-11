@@ -25,9 +25,7 @@ interface TableProps {
     >([]);
 
   const onCurrentData = (index: number) => {
-    console.log(data);
     const newData = data.filter((_, i) => i == index);
-    console.log(newData);
     setCurrentData(newData);
   };
   const [phoneData, setData] = useState<

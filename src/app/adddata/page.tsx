@@ -44,7 +44,6 @@ const AddData = () => {
     `;
 
     const variables = { userDetails: signupData };
-    console.log(variables)
     try {
       const response = await fetch('http://13.127.87.100:3000/graphql', {
         method: 'POST',
@@ -64,7 +63,6 @@ const AddData = () => {
         setError(result.errors[0].message || 'Signup failed. Please try again.');
       } else {
         const userData = result.data.registerUser;
-        console.log('-----------------------------------------\n', userData)
         // Automatically sign in the user with NextAuth
         const signInResponse = await signIn('credentials', {
           redirect: false,
@@ -111,14 +109,9 @@ const AddData = () => {
               />
             </Link>
             <h2 className="title-lg m-auto text-primary " >Add additional data</h2>
-
           </div>
-
-
           {error && <div className="text-red-500">{error}</div>}
-
           <form onSubmit={handleSubmit}>
-
             <div className="flex">
               <div className="mb-2 mr-2 w-[50%]">
                 <label className="form-label">First Name</label>

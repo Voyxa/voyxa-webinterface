@@ -13,7 +13,6 @@ export default function CreateVoyxa() {
     if (pageValue > 0) setpageValue(pageValue - 1);
   };
   const rightBtnClick = () => {
-    console.log(pageValue + 1)
     if (pageValue == 4) setpageValue(0);
     else setpageValue(pageValue + 1);
   };
