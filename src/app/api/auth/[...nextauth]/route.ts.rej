@@ -26,14 +26,6 @@ diff a/src/app/api/auth/[...nextauth]/route.ts b/src/app/api/auth/[...nextauth]/
 -  industry?: string;
 -  access_token: string;
 -  refresh_token: string;
--}
--
--// Define the GraphQL client
--const graphQLClient = new GraphQLClient(process.env.GRAPHQL_API_ENDPOINT as string, {
--  headers: {
--    authorization: `Bearer ${process.env.GRAPHQL_API_TOKEN}`, // Use appropriate token if necessary
--  },
--});
 +const socialLoginMutation = `
 +  mutation SocialLogin($provider: String!, $code: String!) {
 +    socialLogin(provider: $provider, code: $code) {
@@ -45,7 +37,14 @@ diff a/src/app/api/auth/[...nextauth]/route.ts b/src/app/api/auth/[...nextauth]/
 +      industry
 +      access_token
 +      refresh_token
-+    }
+     }
+-
+-// Define the GraphQL client
+-const graphQLClient = new GraphQLClient(process.env.GRAPHQL_API_ENDPOINT as string, {
+-  headers: {
+-    authorization: `Bearer ${process.env.GRAPHQL_API_TOKEN}`, // Use appropriate token if necessary
+-  },
+-});
 +  }
 +`;
  
@@ -94,34 +93,32 @@ diff a/src/app/api/auth/[...nextauth]/route.ts b/src/app/api/auth/[...nextauth]/
 -            access_token
 -            refresh_token
 -          }
-+    async signIn({ account, profile, tokens }) {
-+      if (account?.provider && tokens?.code) {
-+        try {
-+          await client.request(socialLoginMutation, {
-+            provider: account.provider,
-+            code: tokens.code, // OAuth 2.0 authorization code
-+          });
-+          return true;
-+        } catch (error) {
-+          console.error('Error during social login:', error);
-+          return false;
-         }
+-        }
 -      `;
 -
--      try {
++    async signIn({ account, profile, tokens }) {
++      if (account?.provider && tokens?.code) {
+         try {
 -        // Call the GraphQL endpoint to register the user
 -        const response = await graphQLClient.request<{ registerUser: UserOutputDto }>(mutation, {
 -          userDetails: userInputDto,
--        });
++          await client.request(socialLoginMutation, {
++            provider: account.provider,
++            code: tokens.code, // OAuth 2.0 authorization code
+           });
 -
 -        console.log('User registered:', response.registerUser);
 -
 -        // Optionally store tokens in the session or a secure cookie
 -        return true; // Continue the sign-in process
--      } catch (error) {
++          return true;
+         } catch (error) {
 -        console.error('Error registering user:', error);
 -        return false; // Reject the sign-in process
-       }
++          console.error('Error during social login:', error);
++          return false;
+         }
++      }
 +      return true;
      },
 -    async session({ session, token, user }) {

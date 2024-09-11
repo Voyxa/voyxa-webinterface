@@ -47,7 +47,7 @@ const Signup = () => {
     console.log(variables)
     try {
       const response = await fetch('http://13.127.87.100:3000/graphql', {
-        method: 'POST', 
+        method: 'POST',
         mode: 'no-cors', // This will bypass CORS, but you won't have access to the response data
         headers: {
           'Content-Type': 'application/json',
@@ -64,7 +64,7 @@ const Signup = () => {
         setError(result.errors[0].message || 'Signup failed. Please try again.');
       } else {
         const userData = result.data.registerUser;
-        console.log('-----------------------------------------\n',userData)
+        console.log('-----------------------------------------\n', userData)
         // Automatically sign in the user with NextAuth
         const signInResponse = await signIn('credentials', {
           redirect: false,
@@ -85,11 +85,11 @@ const Signup = () => {
   };
 
   const handleGoogleSignup = async () => {
-    signIn('google', { callbackUrl: '/calling' }); // Use signIn for Google signup
+    signIn('google', { callbackUrl: '/adddata' }); // Use signIn for Google signup
   };
 
   const handleMicrosoftSignup = async () => {
-    signIn('azure-ad', { callbackUrl: '/calling' }); // Use signIn for Microsoft signup
+    signIn('azure-ad', { callbackUrl: '/adddata' }); // Use signIn for Microsoft signup
   };
 
   return (
@@ -100,6 +100,7 @@ const Signup = () => {
     }}>
       <div className="flex flex-1 flex-col justify-center px-4 sm:px-6 lg:flex-none lg:px-20 xl:px-24 w-[50%]">
         <div className="bg-white p-10 rounded-lg shadow-lg w-[100%] max-w-[500px] m-auto">
+
           <div className="w-full flex justify-center mb-4">
             <Link href="/">
               <Image
@@ -107,13 +108,14 @@ const Signup = () => {
                 alt="Description of image"
                 width={50}
                 height={50}
-                className="mr-3"
+
               />
             </Link>
+            <h2 className="title-lg m-auto" >Create account</h2>
+
           </div>
-          <h2 className="title-lg">Create account</h2>
           <label className="title-md">
-            Sign up for an account to get started
+            &nbsp;
           </label>
 
           {error && <div className="text-red-500">{error}</div>}

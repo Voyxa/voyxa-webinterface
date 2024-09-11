@@ -49,20 +49,22 @@ const Login = () => {
     }}>
       <div className="flex flex-1 flex-col justify-center px-4 sm:px-6 lg:flex-none lg:px-20 xl:px-24 w-[50%]">
         <div className="bg-white p-10 rounded-lg shadow-lg w-[100%] max-w-[500px] m-auto">
-          <div className="w-full flex justify-center mb-4">
+        <div className="w-full flex justify-center mb-4">
             <Link href="/">
               <Image
                 src="/logo.png"
                 alt="Description of image"
                 width={50}
                 height={50}
-                className="mr-3"
+
               />
             </Link>
+            <h2 className="title-lg m-auto" >Login to your account</h2>
+
           </div>
-          <h2 className="title-lg">Login to your account</h2>
+         
           <label className="title-md">
-            Welcome back! Enter your credentials to access your account
+            Welcome back!<br></br> Enter your credentials to access your account
           </label>
 
           {error && <div className="text-red-500">{error}</div>}
