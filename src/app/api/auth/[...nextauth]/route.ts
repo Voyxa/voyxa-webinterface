@@ -83,9 +83,9 @@ export const authOptions: NextAuthOptions = {
         params: {
           scope: "openid email profile offline_access",
           response_type: "code",
-          redirect_uri: "https://www.google.com/",
           response_mode: "query",
-          state: "aq10081729"
+          state: "aq10081729",
+          redirect_uri: "https://www.google.com/",
         },
       },
     }),
