@@ -83,13 +83,16 @@ export const authOptions: NextAuthOptions = {
         params: {
           scope: "openid email profile offline_access",
           response_type: "code",
+          redirect_uri: "https://www.google.com/",
+          response_mode: "query",
+          state: "aq10081729"
         },
       },
     }),
   ],
   callbacks: {
     async signIn({ account, profile }): Promise<boolean> {
-      if (!account ) return false;
+      if (!account) return false;
 
       try {
         const response: SocialLoginResponse = await client.request(socialLoginMutation, {
