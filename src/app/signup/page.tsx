@@ -1,8 +1,10 @@
+// pages/signup.tsx
 "use client";
 import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
 import { signIn } from "next-auth/react"; // Import the signIn function
+import Snowfall from '../component/Snowfall'; // Adjust the import path as necessary
 
 const Signup = () => {
   const [email, setEmail] = useState<string>("");
@@ -96,6 +98,7 @@ const Signup = () => {
       backgroundRepeat: 'no-repeat',
       backgroundSize: 'cover'
     }}>
+      <Snowfall /> {/* Add the Snowfall component here */}
       <div className="flex flex-1 flex-col justify-center px-4 sm:px-6 lg:flex-none lg:px-20 xl:px-24 w-[50%]">
         <div className="bg-white p-10 rounded-lg shadow-lg w-[100%] max-w-[500px] m-auto">
 
@@ -106,15 +109,11 @@ const Signup = () => {
                 alt="Description of image"
                 width={50}
                 height={50}
-
               />
             </Link>
-            <h2 className="title-lg m-auto" >Create account</h2>
-
+            <h2 className="title-lg m-auto">Create account</h2>
           </div>
-          <label className="title-md">
-            &nbsp;
-          </label>
+          <label className="title-md">&nbsp;</label>
 
           {error && <div className="text-red-500">{error}</div>}
 
