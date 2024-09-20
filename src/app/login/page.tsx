@@ -3,6 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
 import { signIn } from "next-auth/react"; // Import the signIn function
+import Snowfall from '../component/Snowfall'; // Adjust the import path as necessary
 
 const Login = () => {
   const [email, setEmail] = useState<string>("");
@@ -47,6 +48,7 @@ const Login = () => {
       backgroundRepeat: 'no-repeat',
       backgroundSize: 'cover'
     }}>
+      <Snowfall /> {/* Add the Snowfall component here */}
       <div className="flex flex-1 flex-col justify-center px-4 sm:px-6 lg:flex-none lg:px-20 xl:px-24 w-[50%]">
         <div className="bg-white p-10 rounded-lg shadow-lg w-[100%] max-w-[500px] m-auto">
         <div className="w-full flex justify-center mb-4">

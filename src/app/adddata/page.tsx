@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useState } from "react";
 import { signIn } from "next-auth/react"; // Import the signIn function
 import { Button } from 'antd';
+import Snowfall from '../component/Snowfall'; // Adjust the import path as necessary
 
 const AddData = () => {
   const [email, setEmail] = useState<string>("");
@@ -97,6 +98,7 @@ const AddData = () => {
       backgroundRepeat: 'no-repeat',
       backgroundSize: 'cover'
     }}>
+      <Snowfall /> {/* Add the Snowfall component here */}
       <div className="flex flex-1 flex-col justify-center px-4 sm:px-6 lg:flex-none lg:px-20 xl:px-24 w-[50%]">
         <div className="bg-white p-10 rounded-lg shadow-lg w-[100%] max-w-[500px] m-auto">
           <div className="w-full flex justify-center mb-4">
@@ -166,13 +168,17 @@ const AddData = () => {
               />
             </div>
             <div className="grid grid-cols-2 gap-4 mt-4">
-              <Button type="primary" htmlType="submit" className="p-5">
+              <button type="submit"   className="submit-btn gradient-bg">
                 Save
-              </Button>
-              <Button type="default" href="/signup" className="p-5">
-                Cancel
-              </Button>
+              </button>
+              <Link href="/login" >
+                <button type="button" className="google-btn">
+                  Cancel
+                </button>
+              </Link>
+
             </div>
+
           </form>
         </div>
       </div>

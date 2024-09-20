@@ -8,9 +8,9 @@ const Snowfall = () => {
       snowflake.style.left = Math.random() * 100 + 'vw';
       snowflake.style.width = Math.random() * 10 + 5 + 'px'; // Size between 5px and 15px
       snowflake.style.height = snowflake.style.width; // Keep it circular
-      snowflake.style.animationDuration = Math.random() * 15 + 15 + 's'; // Duration between 5s and 10s
-      snowflake.style.opacity = Math.random() * 0.5 + 0.2; // Opacity between 0.5 and 1
-      snowflake.style.animationDelay = Math.random() * 15 + 's'; // Random delay for each snowflake
+      snowflake.style.animationDuration = Math.random() * 5 + 5 + 's'; // Duration between 5s and 10s
+      snowflake.style.opacity = Math.random() * 0.5 + 0.2 + ''; // Opacity between 0.5 and 1
+      snowflake.style.animationDelay = Math.random() * 5 + 's'; // Random delay for each snowflake
       document.body.appendChild(snowflake);
 
       setTimeout(() => {
