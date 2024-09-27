@@ -13,7 +13,7 @@ const nextConfig = {
     return [
       {
         source: '/graphql',
-        destination: 'http://13.127.87.100:3000/graphql',
+        destination: 'http://localhost:4000/graphql',
       },
     ];
   },

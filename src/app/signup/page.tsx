@@ -1,13 +1,13 @@
-// pages/signup.tsx
 "use client";
 import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
-import { signIn } from "next-auth/react"; // Import the signIn function
-import Snowfall from '../component/Snowfall'; // Adjust the import path as necessary
+import { signIn } from "next-auth/react";
+import Snowfall from '../component/Snowfall';
+import { GraphQLClient } from 'graphql-request';
 
 const Signup = () => {
-  const [email, setEmail] = useState<string>("");
+  const [email_id, setEmail] = useState<string>("");
   const [firstName, setFirstName] = useState<string>("");
   const [lastName, setLastName] = useState<string>("");
   const [phoneNumber, setPhoneNumber] = useState<string>("");
@@ -15,68 +15,56 @@ const Signup = () => {
   const [industry, setIndustry] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [error, setError] = useState<string>("");
+  const [success, setSuccess] = useState<boolean>(false); // New state for success notification
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
+    setSuccess(false); // Reset success state before submitting
 
     const signupData = {
-      email,
-      firstName,
-      lastName,
-      phoneNumber,
+      email_id,
+      first_name: firstName,
+      last_name: lastName,
+      user_phone_number: phoneNumber,
       company,
       industry,
       password,
     };
 
-    const mutation = `
+    const client = new GraphQLClient('http://localhost:3000/graphql');
+
+    const signupMutation = `
       mutation RegisterUser($userDetails: UserInputDto!) {
         registerUser(userDetails: $userDetails) {
           first_name
           last_name
-          user_phone_number
           email_id
+          user_phone_number
           company
           industry
-          access_token
-          refresh_token
         }
       }
     `;
 
-    const variables = { userDetails: signupData };
     try {
-      const response = await fetch('http://13.127.87.100:3000/graphql', {
-        method: 'POST',
-        mode: 'no-cors', // This will bypass CORS, but you won't have access to the response data
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json', // Include Accept header
-        },
-        body: JSON.stringify({
-          query: mutation,
-          userDetails: signupData,
-        }),
+      const response = await client.request(signupMutation, {
+        userDetails: signupData,
       });
 
-      const result = await response.json();
-      if (result.errors) {
-        setError(result.errors[0].message || 'Signup failed. Please try again.');
-      } else {
-        const userData = result.data.registerUser;
-        // Automatically sign in the user with NextAuth
-        const signInResponse = await signIn('credentials', {
-          redirect: false,
-          email: userData.email_id,
-          password, // You may need to adjust this depending on your authentication logic
-        });
+      // Show success notification
+      setSuccess(true);
 
-        if (signInResponse?.error) {
-          setError(signInResponse.error);
-        } else {
-          window.location.href = '/calling'; // Redirect to the dashboard after successful signup and sign-in
-        }
+      // Automatically sign in the user with NextAuth
+      const signInResponse = await signIn('credentials', {
+        redirect: false,
+        password,
+      });
+
+      if (signInResponse?.error) {
+        setError(signInResponse.error);
+      } else {
+        window.location.href = '/login'; // Redirect after successful signup and sign-in
       }
     } catch (error) {
       console.error('Signup Error:', error);
@@ -85,11 +73,11 @@ const Signup = () => {
   };
 
   const handleGoogleSignup = async () => {
-    signIn('google', { callbackUrl: '/adddata' }); // Use signIn for Google signup
+    signIn('google', { callbackUrl: '/adddata' });
   };
 
   const handleMicrosoftSignup = async () => {
-    signIn('azure-ad', { callbackUrl: '/adddata' }); // Use signIn for Microsoft signup
+    signIn('azure-ad', { callbackUrl: '/adddata' });
   };
 
   return (
@@ -98,7 +86,7 @@ const Signup = () => {
       backgroundRepeat: 'no-repeat',
       backgroundSize: 'cover'
     }}>
-      <Snowfall /> {/* Add the Snowfall component here */}
+      <Snowfall />
       <div className="flex flex-1 flex-col justify-center px-4 sm:px-6 lg:flex-none lg:px-20 xl:px-24 w-[50%]">
         <div className="bg-white p-10 rounded-lg shadow-lg w-[100%] max-w-[500px] m-auto">
 
@@ -116,6 +104,11 @@ const Signup = () => {
           <label className="title-md">&nbsp;</label>
 
           {error && <div className="text-red-500">{error}</div>}
+          {success && (
+            <div className="bg-green-500 text-white p-4 rounded-lg mb-4">
+              Registration successful! You can now log in.
+            </div>
+          )}
 
           <form onSubmit={handleSubmit}>
             <div className="mb-2">
@@ -123,7 +116,7 @@ const Signup = () => {
               <input
                 type="email"
                 className="form-input"
-                value={email}
+                value={email_id}
                 onChange={(e) => setEmail(e.target.value)}
                 required
               />

@@ -1,38 +1,46 @@
 "use client";
 import Link from "next/link";
 import Image from "next/image";
-import { useState } from "react";
-import { signIn } from "next-auth/react"; // Import the signIn function
-import { Button } from 'antd';
-import Snowfall from '../component/Snowfall'; // Adjust the import path as necessary
+import { useState, useEffect } from "react";
+import { signIn, useSession } from "next-auth/react";
+import Snowfall from "../component/Snowfall";
 
 const AddData = () => {
+  const { data: session } = useSession();
   const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
   const [firstName, setFirstName] = useState<string>("");
   const [lastName, setLastName] = useState<string>("");
   const [phoneNumber, setPhoneNumber] = useState<string>("");
   const [company, setCompany] = useState<string>("");
   const [industry, setIndustry] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
   const [error, setError] = useState<string>("");
+
+  useEffect(() => {
+    if (session) {
+      setEmail(session.user?.email || "");
+      // Don't set password from session; manage securely
+      // setPassword("user's password"); // REMOVE THIS LINE
+    }
+  }, [session]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
 
     const signupData = {
-      email,
-      firstName,
-      lastName,
-      phoneNumber,
+      email_id: email,
+      first_name: firstName,
+      last_name: lastName,
+      user_phone_number: phoneNumber,
       company,
       industry,
       password,
     };
 
     const mutation = `
-      mutation RegisterUser($userDetails: UserInputDto!) {
-        registerUser(userDetails: $userDetails) {
+      mutation updateUserDetails($userDetails: UserInputDto!) {
+        updateUserDetails(userDetails: $userDetails) {
           first_name
           last_name
           user_phone_number
@@ -47,12 +55,12 @@ const AddData = () => {
 
     const variables = { userDetails: signupData };
     try {
-      const response = await fetch('http://13.127.87.100:3000/graphql', {
-        method: 'POST',
-        mode: 'no-cors', // This will bypass CORS, but you won't have access to the response data
+      const response = await fetch("http://localhost:3000/graphql", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json', // Include Accept header
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          // "Authorization": session?.accessToken ? `Bearer ${session.accessToken}` : '', // Conditional access
         },
         body: JSON.stringify({
           query: mutation,
@@ -62,43 +70,37 @@ const AddData = () => {
 
       const result = await response.json();
       if (result.errors) {
-        setError(result.errors[0].message || 'Add user data failed. Please try again.');
+        setError(result.errors[0].message || "Add user data failed. Please try again.");
       } else {
-        const userData = result.data.registerUser;
-        // Automatically sign in the user with NextAuth
-        const signInResponse = await signIn('credentials', {
+        const userData = result.data.updateUserDetails;
+        const signInResponse = await signIn("credentials", {
           redirect: false,
           email: userData.email_id,
-          password, // You may need to adjust this depending on your authentication logic
+          password,
         });
 
         if (signInResponse?.error) {
           setError(signInResponse.error);
         } else {
-          window.location.href = '/calling'; // Redirect to the /calling page after successful signup and sign-in
+          window.location.href = "/calling";
         }
       }
     } catch (error) {
-      console.error('Signup Error:', error);
-      setError('Add user data failed. Please try again.');
+      console.error("Signup Error:", error);
+      setError("Add user data failed. Please try again.");
     }
   };
 
-  const handleGoogleSignup = async () => {
-    signIn('google', { callbackUrl: '/calling' }); // Use signIn for Google signup
-  };
-
-  const handleMicrosoftSignup = async () => {
-    signIn('azure-ad', { callbackUrl: '/calling' }); // Use signIn for Microsoft signup
-  };
-
   return (
-    <div className="flex min-h-full flex-1 max-w-full justify-center px-4 sm:px-6 lg:px-10 py-[20px]" style={{
-      backgroundImage: 'url(/background.jpg)',
-      backgroundRepeat: 'no-repeat',
-      backgroundSize: 'cover'
-    }}>
-      <Snowfall /> {/* Add the Snowfall component here */}
+    <div
+      className="flex min-h-full flex-1 max-w-full justify-center px-4 sm:px-6 lg:px-10 py-[20px]"
+      style={{
+        backgroundImage: "url(/background.jpg)",
+        backgroundRepeat: "no-repeat",
+        backgroundSize: "cover",
+      }}
+    >
+      <Snowfall />
       <div className="flex flex-1 flex-col justify-center px-4 sm:px-6 lg:flex-none lg:px-20 xl:px-24 w-[50%]">
         <div className="bg-white p-10 rounded-lg shadow-lg w-[100%] max-w-[500px] m-auto">
           <div className="w-full flex justify-center mb-4">
@@ -168,17 +170,19 @@ const AddData = () => {
               />
             </div>
             <div className="grid grid-cols-2 gap-4 mt-4">
-              <button type="submit"   className="submit-btn gradient-bg">
+            <Link href="/calling">
+             
+              <button type="submit" className="submit-btn gradient-bg">
                 Save
               </button>
-              <Link href="/login" >
+              </Link>
+             
+              <Link href="/login">
                 <button type="button" className="google-btn">
                   Cancel
                 </button>
               </Link>
-
             </div>
-
           </form>
         </div>
       </div>

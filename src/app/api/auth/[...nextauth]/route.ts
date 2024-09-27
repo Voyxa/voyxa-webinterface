@@ -1,10 +1,37 @@
-import NextAuth, { NextAuthOptions, Account, Profile, Session } from "next-auth";
+import NextAuth, { NextAuthOptions, Account, Profile, Session  } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import MicrosoftProvider from "next-auth/providers/azure-ad";
+import CredentialsProvider from "next-auth/providers/credentials";
 import { GraphQLClient } from 'graphql-request';
 import { JWT } from "next-auth/jwt";
 
-// Define a type for the additional data you expect from the GraphQL mutation
+// Define a type for the user to include additional fields
+interface User {
+  id: string; // Add the required id property
+  first_name: string;
+  last_name: string;
+  user_phone_number: string;
+  email_id: string;
+  company?: string;
+  industry?: string;
+  access_token: string;
+  refresh_token: string;
+}
+interface UserOutputDto {
+  first_name: string;
+  last_name: string;
+  user_phone_number: string;
+  email_id: string;
+  company?: string;
+  industry?: string;
+  access_token: string;
+  refresh_token: string;
+}
+
+interface UserLoginResponse {
+  userLogin: UserOutputDto;
+}
+// Define a type for the response from the GraphQL mutation for social login
 interface SocialLoginResponse {
   socialLogin: {
     first_name: string;
@@ -60,9 +87,79 @@ const socialLoginMutation = `
     }
   }
 `;
-
 export const authOptions: NextAuthOptions = {
   providers: [
+    CredentialsProvider({
+      name: 'credentials',
+      
+      credentials: {
+        login_id: { label: "Email", type: "text" },
+        password: { label: "Password", type: "password" },
+      },
+      async authorize(credentials) {
+        // Check if credentials are defined
+        if (!credentials) {
+          throw new Error("Credentials not provided");
+        }
+        const { login_id, password } = credentials;
+
+        if (!login_id || !password) {
+          throw new Error("Please provide both email and password");
+        }
+      
+        const loginMutation = `
+          mutation UserLogin($loginDetails: LoginInputDto!) {
+            userLogin(loginDetails: $loginDetails) {
+              first_name
+              last_name
+              user_phone_number
+              email_id
+              company
+              industry
+              access_token
+              refresh_token
+            }
+          }
+        `;
+      
+        const variables = {
+          loginDetails: {
+            login_id,  // Use the extracted value
+            password,   // Use the extracted value
+          },
+        };
+      
+        try {
+          const data = await client.request<UserLoginResponse>(loginMutation, variables);
+          const userOutput: UserOutputDto = data.userLogin;
+      
+          if (userOutput) {
+            const user: User = {
+              id: userOutput.email_id,
+              first_name: userOutput.first_name,
+              last_name: userOutput.last_name,
+              user_phone_number: userOutput.user_phone_number,
+              email_id: userOutput.email_id,
+              company: userOutput.company,
+              industry: userOutput.industry,
+              access_token: userOutput.access_token,
+              refresh_token: userOutput.refresh_token,
+            };
+            return user; // Return the transformed user object
+          } else {
+            throw new Error("Invalid credentials");
+          }
+        } catch (error: unknown) {
+          if (error instanceof Error) {
+            console.error('Authorization Error:', error.message);
+            throw new Error(error.message || "An error occurred during login");
+          } else {
+            console.error('Authorization Error:', error);
+            throw new Error("An unknown error occurred during login");
+          }
+        }
+      }
+    }),
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID as string,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
@@ -78,7 +175,7 @@ export const authOptions: NextAuthOptions = {
     MicrosoftProvider({
       clientId: process.env.MICROSOFT_CLIENT_ID as string,
       clientSecret: process.env.MICROSOFT_CLIENT_SECRET as string,
-      tenantId: process.env.MICROSOFT_TENANT_ID as string, // This should match the tenant where the application is registered
+      tenantId: process.env.MICROSOFT_TENANT_ID as string,
       authorization: {
         params: {
           scope: "openid email profile offline_access",
@@ -93,24 +190,40 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async signIn({ account, profile }): Promise<boolean> {
       if (!account) return false;
-
-      try {
-        const response: SocialLoginResponse = await client.request(socialLoginMutation, {
-          provider: account.provider,
-          code: account.access_token,  // Use access_token instead of code
-        });
-        console.log(response)
-        account.firstName = response.socialLogin.first_name;
-        account.lastName = response.socialLogin.last_name;
-        account.company = response.socialLogin.company;
-        account.industry = response.socialLogin.industry;
-
-        return true;
-      } catch (error) {
-        console.error('Error during social login:', error);
-        return false;
+      console.log(account)
+      // Check if the login is through social login
+      if (account.provider !== 'credentials') {
+        try {
+          
+          // If it's a social login, make the GraphQL request
+          const response: SocialLoginResponse = await client.request(socialLoginMutation, {
+            provider: account.provider,
+            code: account.access_token, // Use access_token for social logins
+          });
+          
+          // Save user data to account
+          account.firstName = response.socialLogin.first_name;
+          account.lastName = response.socialLogin.last_name;
+          account.company = response.socialLogin.company;
+          account.industry = response.socialLogin.industry;
+        } catch (error) {
+          console.error('Error during social login:', error);
+          return false;
+        }
+      } else {
+        // Here you would typically validate the user's credentials and fetch user data as needed.
+        // If you're already validating credentials in the CredentialsProvider's signIn method,
+        // you can skip additional validation here unless needed.
+  
+        // For example, if you fetch additional user data based on email/password:
+        // const userData = await fetchUserDataFromDatabase(email, password);
+        // account.firstName = userData.firstName;
+        // account.lastName = userData.lastName;
+        // etc.
       }
-    },
+  
+      return true; // Allow sign in
+    },  
     async jwt({ token, account, profile }: { token: CustomJWT, account?: Account | null, profile?: Profile | null }): Promise<CustomJWT> {
       if (account) {
         token.accessToken = account.access_token;
@@ -154,6 +267,7 @@ export const authOptions: NextAuthOptions = {
     },
   },
 };
+
 
 const handler = NextAuth(authOptions);
 export { handler as GET, handler as POST };

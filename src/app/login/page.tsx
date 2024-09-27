@@ -2,33 +2,50 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
-import { signIn } from "next-auth/react"; // Import the signIn function
+import { signIn,useSession } from "next-auth/react"; // Import the signIn function
 import Snowfall from '../component/Snowfall'; // Adjust the import path as necessary
 
+
+interface UserLoginResponse {
+  userLogin: {
+    first_name: string;
+    last_name: string;
+    user_phone_number: string;
+    email_id: string;
+    company: string;
+    industry: string;
+    access_token: string;
+    refresh_token: string;
+  };
+}
 const Login = () => {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [error, setError] = useState<string>("");
-
+  const { data: session, update: updateSession } = useSession();
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
 
-    // Call to your login API
-    const response = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ email, password }),
-    });
 
-    if (response.ok) {
-      // Handle successful login (e.g., redirect to dashboard)
-      window.location.href = '/calling';
-    } else {
-      const data = await response.json();
-      setError(data.message || 'Login failed. Please check your credentials.');
+    try {
+      // Use NextAuth's signIn with CredentialsProvider
+      const result = await signIn('credentials', {
+        redirect: false,
+        login_id: email,    // Pass email directly
+        password: password,  // Pass password directly
+      });
+
+      if (result?.error) {
+        setError(result.error);
+      } else {
+        // Successful login
+        // You may want to retrieve user data and set session here if needed
+        window.location.href = '/calling'; // Redirect to calling page
+      }
+    } catch (error: any) {
+      console.error('Login Error:', error);
+      setError('Login failed. Please check your credentials.');
     }
   };
 
@@ -51,22 +68,20 @@ const Login = () => {
       <Snowfall /> {/* Add the Snowfall component here */}
       <div className="flex flex-1 flex-col justify-center px-4 sm:px-6 lg:flex-none lg:px-20 xl:px-24 w-[50%]">
         <div className="bg-white p-10 rounded-lg shadow-lg w-[100%] max-w-[500px] m-auto">
-        <div className="w-full flex justify-center mb-4">
+          <div className="w-full flex justify-center mb-4">
             <Link href="/">
               <Image
                 src="/logo.png"
                 alt="Description of image"
                 width={50}
                 height={50}
-
               />
             </Link>
-            <h2 className="title-lg m-auto" >Login to your account</h2>
-
+            <h2 className="title-lg m-auto">Login to your account</h2>
           </div>
-         
+
           <label className="title-md">
-            Welcome back!<br></br> Enter your credentials to access your account
+            Welcome back!<br /> Enter your credentials to access your account
           </label>
 
           {error && <div className="text-red-500">{error}</div>}
