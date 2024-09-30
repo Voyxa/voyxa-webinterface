@@ -6,6 +6,9 @@ import { signIn } from "next-auth/react";
 import Snowfall from '../component/Snowfall';
 import { GraphQLClient } from 'graphql-request';
 
+import PhoneInput from 'react-phone-input-2';
+import 'react-phone-input-2/lib/style.css'; // Import the phone input CSS
+
 const Signup = () => {
   const [email_id, setEmail] = useState<string>("");
   const [firstName, setFirstName] = useState<string>("");
@@ -58,6 +61,7 @@ const Signup = () => {
       // Automatically sign in the user with NextAuth
       const signInResponse = await signIn('credentials', {
         redirect: false,
+        login_id:email_id,
         password,
       });
 
@@ -89,7 +93,6 @@ const Signup = () => {
       <Snowfall />
       <div className="flex flex-1 flex-col justify-center px-4 sm:px-6 lg:flex-none lg:px-20 xl:px-24 w-[50%]">
         <div className="bg-white p-10 rounded-lg shadow-lg w-[100%] max-w-[500px] m-auto">
-
           <div className="w-full flex justify-center mb-4">
             <Link href="/">
               <Image
@@ -145,14 +148,16 @@ const Signup = () => {
             </div>
             <div className="mb-2">
               <label className="form-label">Phone Number</label>
-              <input
-                type="text"
-                className="form-input"
+              <PhoneInput
+                country={'us'} // Default country, you can change it
                 value={phoneNumber}
-                onChange={(e) => setPhoneNumber(e.target.value)}
-                required
+                onChange={(value: string) => setPhoneNumber(value)}
+                inputStyle={{ width: '100%', height:'40px' }} // Custom styling for input
+                enableSearch={true} // Enable country search feature
+                
               />
             </div>
+            
             <div className="mb-2">
               <label className="form-label">Company</label>
               <input

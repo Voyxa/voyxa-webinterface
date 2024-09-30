@@ -4,6 +4,23 @@ import Image from "next/image";
 import { useState, useEffect } from "react";
 import { signIn, useSession } from "next-auth/react";
 import Snowfall from "../component/Snowfall";
+import PhoneInput from "react-phone-input-2";
+import { GraphQLClient } from "graphql-request"; // Import GraphQLClient
+import "react-phone-input-2/lib/style.css"; // Import the phone input CSS
+
+// Define the expected response type
+interface UpdateUserDetailsResponse {
+  updateUserDetails: {
+    first_name: string;
+    last_name: string;
+    user_phone_number: string;
+    email_id: string;
+    company: string;
+    industry: string;
+    access_token: string;
+    refresh_token: string;
+  };
+}
 
 const AddData = () => {
   const { data: session } = useSession();
@@ -19,8 +36,6 @@ const AddData = () => {
   useEffect(() => {
     if (session) {
       setEmail(session.user?.email || "");
-      // Don't set password from session; manage securely
-      // setPassword("user's password"); // REMOVE THIS LINE
     }
   }, [session]);
 
@@ -54,36 +69,30 @@ const AddData = () => {
     `;
 
     const variables = { userDetails: signupData };
+
     try {
-      const response = await fetch("http://localhost:3000/graphql", {
-        method: "POST",
+      // Create a GraphQLClient instance
+      const client = new GraphQLClient("http://localhost:3000/graphql", {
         headers: {
           "Content-Type": "application/json",
-          "Accept": "application/json",
-          // "Authorization": session?.accessToken ? `Bearer ${session.accessToken}` : '', // Conditional access
+          Accept: "application/json",
         },
-        body: JSON.stringify({
-          query: mutation,
-          variables,
-        }),
       });
 
-      const result = await response.json();
-      if (result.errors) {
-        setError(result.errors[0].message || "Add user data failed. Please try again.");
-      } else {
-        const userData = result.data.updateUserDetails;
-        const signInResponse = await signIn("credentials", {
-          redirect: false,
-          email: userData.email_id,
-          password,
-        });
+      // Send the mutation using the client
+      const result = await client.request<UpdateUserDetailsResponse>(mutation, variables); // Cast the result to the expected type
 
-        if (signInResponse?.error) {
-          setError(signInResponse.error);
-        } else {
-          window.location.href = "/calling";
-        }
+      const userData = result.updateUserDetails;
+      const signInResponse = await signIn("credentials", {
+        redirect: false,
+        email: userData.email_id,
+        password,
+      });
+
+      if (signInResponse?.error) {
+        setError(signInResponse.error);
+      } else {
+        window.location.href = "/calling";
       }
     } catch (error) {
       console.error("Signup Error:", error);
@@ -141,12 +150,12 @@ const AddData = () => {
             </div>
             <div className="mb-2">
               <label className="form-label">Phone Number</label>
-              <input
-                type="text"
-                className="form-input"
+              <PhoneInput
+                country={"us"} // Default country, you can change it
                 value={phoneNumber}
-                onChange={(e) => setPhoneNumber(e.target.value)}
-                required
+                onChange={(value: string) => setPhoneNumber(value)}
+                inputStyle={{ width: "100%", height: "40px" }} // Custom styling for input
+                enableSearch={true} // Enable country search feature
               />
             </div>
             <div className="mb-2">
@@ -170,13 +179,9 @@ const AddData = () => {
               />
             </div>
             <div className="grid grid-cols-2 gap-4 mt-4">
-            <Link href="/calling">
-             
               <button type="submit" className="submit-btn gradient-bg">
                 Save
               </button>
-              </Link>
-             
               <Link href="/login">
                 <button type="button" className="google-btn">
                   Cancel

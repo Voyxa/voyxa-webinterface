@@ -433,7 +433,7 @@ export default function Example() {
                           className="ml-4 text-sm font-semibold leading-6 text-gray-900"
                           aria-hidden="true"
                         >
-                          {session?session?.user?.name:'Dmytro'}
+                          {session?.firstName} {session?.lastName}
                         </span>
                         <ChevronDownIcon
                           className="ml-2 h-5 w-5 text-gray-400"
